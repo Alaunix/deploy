@@ -1,0 +1,25 @@
+services:
+  frontend:
+    build: ./frontend
+    environment:
+      VITE_API_URL: https://lensstyle.localhost:8443
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+
+  nginx:
+    build: ./deploy/nginx
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    volumes:
+      - ./deploy/certs/lensstyle.localhost.pem:/etc/nginx/certs/app.pem:ro
+      - ./deploy/certs/lensstyle.localhost-key.pem:/etc/nginx/certs/app-key.pem:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
